@@ -2,13 +2,24 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import font_manager as fm
+import os
 
 # =========================
-# 全局样式
+# 加载本地字体
 # =========================
-plt.rcParams['font.family'] = ['SimHei']  # 中文黑体
+font_path = os.path.join(os.path.dirname(__file__), "Ubuntu_18.04_SimHei.ttf")  # 放在同目录
+if os.path.exists(font_path):
+    my_font = fm.FontProperties(fname=font_path)
+    plt.rcParams['font.family'] = my_font.get_name()
+else:
+    my_font = None
+    st.warning("未找到字体文件，中文可能无法显示")
 plt.rcParams['axes.unicode_minus'] = False  # 正确显示负号
 
+# =========================
+# Streamlit 页面设置
+# =========================
 st.set_page_config(page_title="产品价格差额可视化", layout="wide")
 st.title("🛒 产品价格比较与动态差额可视化")
 
@@ -24,14 +35,14 @@ if uploaded_file is not None:
     if not required_cols.issubset(df.columns):
         st.error("Excel 必须包含 '产品名' 和 '数量' 列")
     else:
-        # 动态识别经销商列（取前两个）
+        # 自动获取经销商列
         dealer_cols = [col for col in df.columns if col not in ['产品名', '数量']]
         if len(dealer_cols) < 2:
             st.error("至少需要两个经销商价格列")
         else:
             dealer1, dealer2 = dealer_cols[:2]
 
-            # 转数值
+            # 转为数值
             df[dealer1] = pd.to_numeric(df[dealer1], errors='coerce')
             df[dealer2] = pd.to_numeric(df[dealer2], errors='coerce')
             df['数量'] = pd.to_numeric(df['数量'], errors='coerce')
@@ -53,7 +64,7 @@ if uploaded_file is not None:
             # =========================
             # 静态柱状图
             # =========================
-            fig1, ax1 = plt.subplots(figsize=(max(12, n_products * 0.6), 6))
+            fig1, ax1 = plt.subplots(figsize=(max(12, n_products*0.6), 6))
             ax1.bar(x - width, df[dealer1], width, label=dealer1, color='#1f77b4', alpha=0.8, edgecolor='k')
             ax1.bar(x, df[dealer2], width, label=dealer2, color='#ff7f0e', alpha=0.8, edgecolor='k')
             colors = ['#e74c3c' if val > 0 else '#2ecc71' for val in df['差额']]
@@ -61,15 +72,20 @@ if uploaded_file is not None:
 
             # 添加差额顶部标签
             for i in range(n_products):
-                ax1.text(x[i] + width,
-                         df['差额'].abs()[i] + max(df[dealer1].max(), df[dealer2].max())*0.02,
-                         f"{df['差额'][i]:+.0f}", ha='center', va='bottom', fontsize=10, color=colors[i])
+                ax1.text(
+                    x[i] + width,
+                    df['差额'].abs()[i] + max(df[dealer1].max(), df[dealer2].max())*0.02,
+                    f"{df['差额'][i]:+.0f}",
+                    ha='center', va='bottom',
+                    fontsize=10, color=colors[i],
+                    fontproperties=my_font
+                )
 
             ax1.set_xticks(x)
-            ax1.set_xticklabels(products, rotation=0, ha='center', fontsize=10)
-            ax1.set_ylabel('价格 / 差额', fontsize=11)
-            ax1.set_title('静态产品价格和差额', fontsize=14)
-            ax1.legend(fontsize=10)
+            ax1.set_xticklabels(products, rotation=0, ha='center', fontsize=10, fontproperties=my_font)
+            ax1.set_ylabel('价格 / 差额', fontsize=11, fontproperties=my_font)
+            ax1.set_title('静态产品价格和差额', fontsize=14, fontproperties=my_font)
+            ax1.legend(fontsize=10, prop=my_font)
             ax1.grid(axis='y', linestyle='--', alpha=0.3)
             plt.tight_layout()
             st.subheader("📈 静态柱状图")
@@ -80,10 +96,10 @@ if uploaded_file is not None:
             # =========================
             st.subheader("⚡ 动态总差额柱状图")
 
-            # 创建滑块调整数量（范围 0–10000）
+            # 创建滑块调整数量（0-10000）
             quantities = {}
             for product in products:
-                default_qty = int(df.loc[df['产品名'] == product, '数量'].values[0])
+                default_qty = int(df.loc[df['产品名']==product, '数量'].values[0])
                 quantities[product] = st.slider(
                     f"{product} 数量",
                     min_value=0,
@@ -92,14 +108,13 @@ if uploaded_file is not None:
                     step=1
                 )
 
-            # 更新数量和总差额
             df['数量'] = df['产品名'].map(quantities)
             df['总差额'] = df['差额'] * df['数量']
             total_diff = df['总差额'].sum()
             st.write(f"所有产品总差额: {total_diff:.0f}")
 
             # 绘制动态总差额柱状图
-            fig2, ax2 = plt.subplots(figsize=(max(12, n_products * 0.6), 6))
+            fig2, ax2 = plt.subplots(figsize=(max(12, n_products*0.6), 6))
             colors = ['#e74c3c' if val > 0 else '#2ecc71' for val in df['差额']]
             ax2.bar(x, df['总差额'].abs(), width, color=colors, alpha=0.9, edgecolor='k')
 
@@ -108,13 +123,14 @@ if uploaded_file is not None:
             ax2.text(
                 1.02, 0.95, diff_text, transform=ax2.transAxes, fontsize=10,
                 verticalalignment='top', horizontalalignment='left',
-                bbox=dict(facecolor='white', alpha=0.7, edgecolor='gray')
+                bbox=dict(facecolor='white', alpha=0.7, edgecolor='gray'),
+                fontproperties=my_font
             )
 
             ax2.set_xticks(x)
-            ax2.set_xticklabels(products, rotation=0, ha='center', fontsize=10)
-            ax2.set_ylabel('总差额', fontsize=11)
-            ax2.set_title(f'动态总差额 (总合={total_diff:.0f})', fontsize=14)
+            ax2.set_xticklabels(products, rotation=0, ha='center', fontsize=10, fontproperties=my_font)
+            ax2.set_ylabel('总差额', fontsize=11, fontproperties=my_font)
+            ax2.set_title(f'动态总差额 (总合={total_diff:.0f})', fontsize=14, fontproperties=my_font)
             ax2.grid(axis='y', linestyle='--', alpha=0.3)
             plt.tight_layout()
             st.pyplot(fig2)
