@@ -6,8 +6,9 @@ import numpy as np
 # =========================
 # 全局样式
 # =========================
-plt.rcParams['font.family'] = ['SimHei']  # 中文黑体
-plt.rcParams['axes.unicode_minus'] = False  # 正确显示负号
+plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'SimHei', 'Microsoft YaHei']
+plt.rcParams['axes.unicode_minus'] = False
+
 
 st.set_page_config(page_title="产品价格差额可视化", layout="wide")
 # =========================
@@ -133,4 +134,5 @@ if uploaded_file is not None:
             ax2.grid(axis='y', linestyle='--', alpha=0.3)
             plt.tight_layout()
             st.pyplot(fig2)
+
 
