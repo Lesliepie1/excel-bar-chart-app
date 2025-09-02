@@ -10,6 +10,21 @@ plt.rcParams['font.family'] = ['SimHei']  # 中文黑体
 plt.rcParams['axes.unicode_minus'] = False  # 正确显示负号
 
 st.set_page_config(page_title="产品价格差额可视化", layout="wide")
+# =========================
+# 设置 Streamlit DataFrame 中文显示
+# =========================
+st.markdown(
+    """
+    <style>
+    .stDataFrame div[data-baseweb="table"] {
+        font-family: 'SimHei', 'Microsoft YaHei', sans-serif;
+        font-size: 14px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("🛒 产品价格比较与动态差额可视化")
 
 # =========================
@@ -118,3 +133,4 @@ if uploaded_file is not None:
             ax2.grid(axis='y', linestyle='--', alpha=0.3)
             plt.tight_layout()
             st.pyplot(fig2)
+
