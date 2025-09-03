@@ -147,13 +147,13 @@ import os
 # 加载本地字体
 # =========================
 
+# 当前项目目录下的字体文件
 font_path = os.path.join(os.getcwd(), "Ubuntu_18.04_SimHei.ttf")
 my_font = font_manager.FontProperties(fname=font_path)
 
-plt.rcParams['font.family'] = my_font.get_name()
+# 设置 matplotlib 使用这个字体
+plt.rcParams['font.family'] = my_font.get_name()  # 注意这里不要写 'SimHei'
 plt.rcParams['axes.unicode_minus'] = False
-
-st.write("matplotlib 正在使用字体:", my_font.get_name())
 
 st.set_page_config(page_title="产品价格差额可视化", layout="wide")
 st.title("🛒 产品价格比较与动态差额可视化")
@@ -285,6 +285,7 @@ if uploaded_file is not None:
             ax3.grid(axis='y', linestyle='--', alpha=0.3)
             plt.tight_layout()
             st.pyplot(fig3)
+
 
 
 
