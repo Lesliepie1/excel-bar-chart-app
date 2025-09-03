@@ -138,7 +138,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib import font_manager as fm
+from matplotlib import font_manager
 import numpy as np
 import os
 
@@ -146,13 +146,12 @@ import os
 # =========================
 # 加载本地字体
 # =========================
-font_path = os.path.join(os.path.dirname(__file__), "Ubuntu_18.04_SimHei.ttf")  # 放在同目录
-if os.path.exists(font_path):
-    my_font = fm.FontProperties(fname=font_path)
-    plt.rcParams['font.family'] = my_font.get_name()
-else:
-    my_font = None
-    st.warning("未找到字体文件，中文可能无法显示")
+
+# 加载项目中的字体文件
+font_path = "Ubuntu_18.04_SimHei.ttf"  # 根据你项目路径调整
+my_font = font_manager.FontProperties(fname=font_path)
+
+plt.rcParams['font.family'] = my_font.get_name()
 plt.rcParams['axes.unicode_minus'] = False  # 正确显示负号
 
 st.set_page_config(page_title="产品价格差额可视化", layout="wide")
@@ -285,6 +284,7 @@ if uploaded_file is not None:
             ax3.grid(axis='y', linestyle='--', alpha=0.3)
             plt.tight_layout()
             st.pyplot(fig3)
+
 
 
 
