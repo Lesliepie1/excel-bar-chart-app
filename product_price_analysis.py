@@ -143,17 +143,17 @@ import numpy as np
 import os
 
 
-# # =========================
-# # 加载本地字体
-# # =========================
-# font_path = os.path.join(os.path.dirname(__file__), "Ubuntu_18.04_SimHei.ttf")  # 放在同目录
-# if os.path.exists(font_path):
-#     my_font = fm.FontProperties(fname=font_path)
-#     plt.rcParams['font.family'] = my_font.get_name()
-# else:
-#     my_font = None
-#     st.warning("未找到字体文件，中文可能无法显示")
-# plt.rcParams['axes.unicode_minus'] = False  # 正确显示负号
+# =========================
+# 加载本地字体
+# =========================
+font_path = os.path.join(os.path.dirname(__file__), "Ubuntu_18.04_SimHei.ttf")  # 放在同目录
+if os.path.exists(font_path):
+    my_font = fm.FontProperties(fname=font_path)
+    plt.rcParams['font.family'] = my_font.get_name()
+else:
+    my_font = None
+    st.warning("未找到字体文件，中文可能无法显示")
+plt.rcParams['axes.unicode_minus'] = False  # 正确显示负号
 
 st.set_page_config(page_title="产品价格差额可视化", layout="wide")
 st.title("🛒 产品价格比较与动态差额可视化")
@@ -285,6 +285,7 @@ if uploaded_file is not None:
             ax3.grid(axis='y', linestyle='--', alpha=0.3)
             plt.tight_layout()
             st.pyplot(fig3)
+
 
 
 
